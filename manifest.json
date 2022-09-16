@@ -1,0 +1,24 @@
+{
+    "name": "Setlify",
+    "description": "Generate a Spotify playlist from setlist.fm",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://*.setlist.fm/setlist/*"],
+            "js": ["script.js"]
+        }
+    ],
+    "permissions": [
+        "identity"
+    ],
+    "host_permissions": [
+        "https://accounts.spotify.com/*"
+    ]
+}
