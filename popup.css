@@ -1,0 +1,28 @@
+body {
+  max-width: 375px;
+}
+
+h1 {
+  font-size: 1.6em;
+  white-space: nowrap;
+}
+
+.signin {
+  cursor: pointer;
+}
+
+img {
+  width: 4em;
+  border-radius: 50%;
+}
+
+#user {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.username {
+  font-weight: 700;
+  white-space: nowrap;
+}

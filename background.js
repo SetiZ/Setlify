@@ -68,6 +68,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       return true;
     }
 
+    if (request.message === 'login') {
+        if (user_signed_in && ACCESS_TOKEN.length > 0)
+        chrome.action.setPopup({ popup: './popup-in.html' }, () => {
+            sendResponse({ message: 'success' });
+        });
+    }
+
     if (request.message === 'logout') {
         user_signed_in = false;
         chrome.action.setPopup({ popup: './popup.html' }, () => {

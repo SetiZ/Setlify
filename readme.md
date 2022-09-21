@@ -8,7 +8,7 @@ Generate a Spotify playlist from setlist.fm
 - [x] setlist.fm API
 - [x] authentication to Spotify
 - [x] authorize to Spotify
-- [ ] design popup
+- [x] design popup
 - [x] add button to page
 - [ ] create playlist
 - [ ] search tracks
