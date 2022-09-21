@@ -10,7 +10,7 @@ Generate a Spotify playlist from setlist.fm
 - [x] authorize to Spotify
 - [x] design popup
 - [x] add button to page
-- [ ] create playlist
+- [x] create playlist
 - [ ] search tracks
 - [ ] add tracks to playlist
 - [ ] publish extension
