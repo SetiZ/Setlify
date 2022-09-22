@@ -33,27 +33,71 @@ const manageData = (data) => {
     return {artist, venue, eventDate, setTracks}
 }
 
-const createPlaylist = (artist, venue, eventDate) => {
+const createPlaylist = async (artist, venue, eventDate) => {
     const data = {
         name: `${artist} @ ${venue} - ${eventDate}`,
         description: `${artist} @ ${venue} - ${eventDate}`,
         public: false
     };
 
-    fetch(`https://api.spotify.com/v1/users/${user_id}/playlists`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + ACCESS_TOKEN
-            },
-            body: JSON.stringify(data)
-        }).then((response) => {
-            return response.json()
-        }).then(data => {
-            console.log(data)
-        }).catch((e) => {
-            console.error(e)
-        });
+    const response = await fetch(`https://api.spotify.com/v1/users/${user_id}/playlists`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + ACCESS_TOKEN
+        },
+        body: JSON.stringify(data)
+    })
+    const dataResponse = await response.json()
+    console.log(dataResponse)
+    return dataResponse.id
+}
+
+const searchAllTracks = async (artist, tracks) => {
+
+    const tracksUri = await Promise.all(tracks.map( async (track) => {
+        const params = {
+            q: encodeURI((`artist:${artist} track:${track}`).replace("'", " ")),
+            type: 'track',
+            limit: 1
+        };
+        const urlParams = Object.keys(params).map(key => `${key}=${params[key]}`).join('&')
+        const trackList = await searchTrack(urlParams)
+        console.log(trackList)
+        return trackList.items.length> 0 && trackList.items[0].uri
+    }))
+    console.log(tracksUri)
+    return tracksUri.filter(track => !!track)
+}
+
+const searchTrack = async (urlParams) => {
+    console.log(`https://api.spotify.com/v1/search?${urlParams}`)
+    const response = await fetch(`https://api.spotify.com/v1/search?${urlParams}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + ACCESS_TOKEN
+        },
+    })
+    const data = await response.json()
+    return data.tracks
+}
+
+const addToPlaylist = (playlistId, trackIds) => {
+    fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + ACCESS_TOKEN
+        },
+        body: JSON.stringify({uris: trackIds})
+    }).then((response) => {
+        return response.json()
+    }).then(data => {
+        console.log(data)
+    }).catch((e) => {
+        console.error(e)
+    });
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -153,20 +197,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 },
             }).then((response) => {
                 return response.json()
-            }).then(data => {
+            }).then(async (data) => {
                 // console.log(data)
                 // sendResponse({ message: 'success', data });
 
                 const dat = manageData(data)
                 console.log(dat)
-                createPlaylist(dat.artist, dat.venue, dat.eventDate)
+
+                const trackIds = await searchAllTracks(dat.artist, dat.setTracks)
+                console.log(trackIds)
+                const playlistId = await createPlaylist(dat.artist, dat.venue, dat.eventDate)
+
+                addToPlaylist(playlistId, trackIds)
             });
-
-            // call Spotify
-
-            // create playlist
-            // search tracks
-            // add tracks to playlist
         }
 
         return true
